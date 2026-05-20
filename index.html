@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>考勤核对</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:#f5f6fa;color:#1f2937;font-size:14px}
+
+.topbar{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;height:52px;display:flex;align-items:center;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:16px;font-weight:700;color:#111}
+.wrap{max-width:1200px;margin:0 auto;padding:20px 16px}
+
+/* 步骤条 */
+.steps{display:flex;gap:0;margin-bottom:22px;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb}
+.step-item{flex:1;padding:12px 16px;text-align:center;font-size:13px;color:#9ca3af;position:relative;cursor:default}
+.step-item.active{color:#4f46e5;font-weight:700;background:#f5f3ff}
+.step-item.done{color:#059669;background:#f0fdf4}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;margin-right:6px;background:#e5e7eb;color:#6b7280}
+.step-item.active .step-num{background:#4f46e5;color:#fff}
+.step-item.done .step-num{background:#059669;color:#fff}
+
+/* 卡片 */
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:20px;margin-bottom:14px}
+.card-head{font-size:15px;font-weight:700;color:#111;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* 上传区 */
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.upload-box{border:2px dashed #d1d5db;border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .15s;background:#fafafa}
+.upload-box:hover{border-color:#6366f1;background:#f5f3ff}
+.upload-box.done{border-color:#10b981;background:#f0fdf4;border-style:solid}
+.upload-box .icon{font-size:32px;margin-bottom:8px}
+.upload-box .label{font-size:14px;font-weight:600;color:#374151}
+.upload-box.done .label{color:#059669}
+.upload-box .sub{font-size:12px;color:#9ca3af;margin-top:4px}
+
+/* 按钮 */
+.btn{padding:10px 28px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-main{background:#4f46e5;color:#fff}
+.btn-main:hover{background:#4338ca}
+.btn-main:disabled{background:#d1d5db;color:#9ca3af;cursor:not-allowed}
+.btn-ghost{background:#fff;border:1px solid #d1d5db;color:#374151}
+.btn-ghost:hover{border-color:#4f46e5;color:#4f46e5}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;cursor:pointer}
+.btn-sm:hover{border-color:#d1d5db;color:#374151}
+
+/* 部门录入tabs */
+.dept-tabs{display:flex;gap:0;border-bottom:2px solid #f3f4f6;margin-bottom:16px}
+.dept-tab{padding:8px 20px;font-size:13px;font-weight:500;color:#9ca3af;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+.dept-tab.on{color:#4f46e5;border-color:#4f46e5;font-weight:600}
+
+/* 表格 */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:8px 6px;text-align:left;font-size:11px;font-weight:600;color:#9ca3af;border-bottom:2px solid #f3f4f6;white-space:nowrap}
+.tbl td{padding:5px 6px;border-bottom:1px solid #f3f4f6;font-size:13px}
+.tbl tr:hover td{background:#fafafa}
+
+/* 录入输入框 */
+.cell-inp{border:1px solid #e5e7eb;border-radius:5px;padding:5px 7px;font-size:13px;outline:none;background:#fff;width:100%;transition:border .15s}
+.cell-inp:focus{border-color:#6366f1;box-shadow:0 0 0 2px rgba(99,102,241,.1)}
+.cell-inp-sm{width:36px;text-align:center;text-transform:uppercase;padding:4px 2px;font-size:12px}
+.cell-inp-num{width:58px;text-align:center}
+
+/* 排班表岗位录入 */
+.sch-section{margin-bottom:20px}
+.sch-section-title{font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;padding:6px 10px;background:#f9fafb;border-radius:6px;border-left:3px solid #4f46e5}
+
+/* 人员代码映射 */
+.code-map{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding:10px 14px;background:#f9fafb;border-radius:8px;border:1px solid #f3f4f6}
+.code-map-item{display:flex;align-items:center;gap:4px;font-size:12px}
+.code-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:4px;font-size:11px;font-weight:700;background:#ede9fe;color:#4f46e5}
+.code-map-name{color:#374151}
+.code-map-inp{border:1px solid #e5e7eb;border-radius:4px;padding:3px 6px;font-size:12px;width:56px;outline:none}
+.code-map-inp:focus{border-color:#6366f1}
+
+/* 预览表 */
+.preview-card{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;margin-bottom:14px}
+.preview-title{font-size:13px;font-weight:600;color:#059669;margin-bottom:8px}
+
+/* 添加行 */
+.add-link{color:#4f46e5;font-size:13px;cursor:pointer;padding:8px 0;display:inline-flex;align-items:center;gap:4px}
+.add-link:hover{text-decoration:underline}
+
+/* 结果 */
+.result-summary{display:flex;gap:12px;margin-bottom:16px}
+.result-box{flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;text-align:center}
+.result-num{font-size:36px;font-weight:800;line-height:1}
+.result-lbl{font-size:12px;color:#9ca3af;margin-top:4px}
+
+/* 异常行 */
+.anom-row td{background:#fff5f5}
+.anom-row:hover td{background:#fee2e2}
+
+/* 筛选 */
+.filter-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+
+/* 折叠 */
+.coll-head{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:12px 0;color:#374151;font-size:14px;font-weight:600}
+.coll-arrow{color:#9ca3af;font-size:12px}
+
+/* 提示 */
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:13px;color:#1d4ed8;margin-bottom:14px;line-height:1.6}
+.tip-box{background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px;line-height:1.5}
+
+.hidden{display:none!important}
+::-webkit-scrollbar{height:5px;width:5px}
+::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="topbar"><h1>📋 考勤核对</h1></div>
+
+<div class="wrap">
+  <!-- 步骤条 -->
+  <div class="steps">
+    <div class="step-item active" id="s1"><span class="step-num">1</span>上传钉钉数据</div>
+    <div class="step-item" id="s2"><span class="step-num">2</span>录入部门考勤</div>
+    <div class="step-item" id="s3"><span class="step-num">3</span>查看比对结果</div>
+  </div>
+
+  <!-- Step 1 -->
+  <div id="page1">
+    <div class="card">
+      <div class="card-head">上传钉钉导出的考勤文件</div>
+      <div class="upload-grid">
+        <div class="upload-box" id="box1" onclick="pick(1)">
+          <div class="icon">📊</div>
+          <div class="label">月度汇总</div>
+          <div class="sub">点击选择 .xlsx 文件</div>
+        </div>
+        <div class="upload-box" id="box2" onclick="pick(2)">
+          <div class="icon">⏰</div>
+          <div class="label">打卡时间表</div>
+          <div class="sub">点击选择 .xlsx 文件</div>
+        </div>
+      </div>
+      <button class="btn btn-main" id="nextBtn1" disabled onclick="goStep2()">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div id="page2" class="hidden">
+    <div class="card">
+      <div class="card-head">录入各部门考勤数据</div>
+      <div class="info-box">
+        照着各部门交上来的考勤表填入下面的表格。<br>
+        <b>汇总表</b>：填姓名和实出勤天数（食堂/物业/办公室）<br>
+        <b>排班表</b>：按岗位填人名代码，和纸质排班表格式一致（保安部）
+      </div>
+
+      <div class="dept-tabs">
+        <div class="dept-tab on" id="dtab1" onclick="switchDept('sum')">汇总表（食堂/物业/办公室）</div>
+        <div class="dept-tab" id="dtab2" onclick="switchDept('sch')">排班表（保安部）</div>
+      </div>
+
+      <!-- 汇总表 -->
+      <div id="paneSum">
+        <div style="overflow-x:auto">
+          <table class="tbl" id="sumTbl">
+            <thead><tr><th>姓名</th><th>部门</th><th>应出勤</th><th>实出勤</th><th>备注</th><th style="width:50px"></th></tr></thead>
+            <tbody id="sumBody"></tbody>
+          </table>
+        </div>
+        <span class="add-link" onclick="addSumRow()">＋ 添加一行</span>
+      </div>
+
+      <!-- 排班表（按岗位录入） -->
+      <div id="paneSch" class="hidden">
+        <!-- 人员代码映射 -->
+        <div class="card-head" style="font-size:13px;margin-bottom:8px">① 设置人员代码</div>
+        <div class="tip-box">
+          先把排班表底部的代码对照填进来，比如 A=阳介凡、B=朱志辉……<br>
+          填好后，下面岗位表里直接填代码字母就行。
+        </div>
+        <div class="code-map" id="codeMapArea"></div>
+        <span class="add-link" onclick="addCodeSlot()" style="margin-bottom:16px;display:inline-flex">＋ 添加代码</span>
+
+        <div class="card-head" style="font-size:13px;margin-top:16px;margin-bottom:8px">② 按岗位填排班（照着纸质表填）</div>
+        <div class="tip-box">
+          每行=一个岗位，每列=一天。填对应人员的代码字母。留空=该岗位当天没人。<br>
+          和纸质排班表的格式完全一样，直接照抄就行。
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl" id="schTbl">
+            <thead id="schHead"></thead>
+            <tbody id="schBody"></tbody>
+          </table>
+        </div>
+
+        <!-- 转换预览 -->
+        <div class="preview-card hidden" id="previewCard">
+          <div class="preview-title">✅ 自动转换结果（按人汇总）</div>
+          <table class="tbl" id="previewTbl">
+            <thead><tr><th>姓名</th><th>出勤天数</th><th>排班明细</th></tr></thead>
+            <tbody id="previewBody"></tbody>
+          </table>
+        </div>
+        <button class="btn btn-ghost" onclick="previewConvert()" style="margin-top:10px;font-size:12px">🔄 预览转换结果</button>
+      </div>
+
+      <div style="margin-top:18px;display:flex;gap:10px">
+        <button class="btn btn-main" onclick="goStep3()">开始比对 →</button>
+        <button class="btn btn-ghost" onclick="goBack1()">← 返回上一步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div id="page3" class="hidden">
+    <div class="result-summary" id="resultCards"></div>
+
+    <div class="card" style="padding:16px 20px">
+      <div class="filter-bar">
+        <div id="filterBtns" style="display:flex;gap:6px"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm" onclick="exportXls()">📥 导出Excel</button>
+          <button class="btn-sm" onclick="resetAll()">🔄 重新核对</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="tbl">
+          <thead><tr><th>#</th><th>姓名</th><th>部门</th><th>异常说明</th><th>部门数据</th><th>钉钉数据</th></tr></thead>
+          <tbody id="resultBody"></tbody>
+        </table>
+        <div id="noResult" class="hidden" style="padding:40px;text-align:center;color:#9ca3af;font-size:15px"></div>
+      </div>
+    </div>
+
+    <!-- 钉钉总览 -->
+    <div class="card" style="padding:14px 20px">
+      <div class="coll-head" onclick="toggleOv()">
+        <span id="ovTitle">钉钉出勤总览</span>
+        <span class="coll-arrow" id="ovArr">展开 ▼</span>
+      </div>
+      <div id="ovWrap" class="hidden" style="overflow-x:auto;margin-top:10px">
+        <table class="tbl">
+          <thead><tr><th>姓名</th><th>考勤组</th><th style="text-align:center">出勤</th><th style="text-align:center">工时h</th><th style="text-align:center">迟到</th><th style="text-align:center">早退</th><th style="text-align:center">缺卡</th><th style="text-align:center">旷工</th><th style="text-align:center">状态</th></tr></thead>
+          <tbody id="ovBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════ 全局 ═══════
+var files = {1:null, 2:null};
+var dd = null, clk = null;
+var anomalies = [], curFilter = "all";
+var sumData = [], schPostData = [];
+var daysInMonth = 31;
+
+// 人员代码映射：[{code:"A", name:"阳介凡"}, ...]
+var codeMap = [];
+
+// 岗位排班数据（按岗位录入）
+// 默认岗位列表
+var defaultPosts = [
+  {id:"jw_z", label:"早班门卫(J)"},
+  {id:"jk_z", label:"早班监控(E)"},
+  {id:"jw_m", label:"中班门卫(K)"},
+  {id:"jk_m", label:"中班监控(D)"},
+  {id:"jw_w", label:"晚班门卫(C)"},
+  {id:"jk_w", label:"晚班监控(H)"},
+  {id:"zz_z", label:"总值班·早班"},
+  {id:"zz_w", label:"总值班·早班2"}
+];
+// postSchData[postIndex][day] = "A" or "B" etc
+var postSchData = [];
+
+// ═══════ 上传 ═══════
+function pick(i) {
+  var inp = document.createElement("input");
+  inp.type = "file"; inp.accept = ".xlsx,.xls";
+  inp.onchange = function(e) {
+    if (!e.target.files[0]) return;
+    files[i] = e.target.files[0];
+    var box = document.getElementById("box" + i);
+    box.classList.add("done");
+    box.querySelector(".label").textContent = files[i].name;
+    box.querySelector(".sub").textContent = (files[i].size/1024).toFixed(0) + " KB";
+    document.getElementById("nextBtn1").disabled = !(files[1] && files[2]);
+  };
+  inp.click();
+}
+
+// ═══════ 钉钉解析 ═══════
+function parseSummary(buf) {
+  var wb = XLSX.read(buf, {type:"array"});
+  var R = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, defval:""});
+  if (R.length < 5) return {emps:{}, year:2026, month:1};
+  var year=2026, month=1;
+  var m = String(R[0][0]||"").match(/(\d{4})-(\d{2})/);
+  if (m) {year=+m[1]; month=+m[2];}
+  var dm = {};
+  for (var c=25; c<(R[3]||[]).length; c++) {
+    var d = String(R[3][c]||"").trim();
+    if (/^\d+$/.test(d)) dm[c] = +d;
+  }
+  var emps = {};
+  for (var r=4; r<R.length; r++) {
+    var name = String(R[r][0]||"").trim(); if (!name) continue;
+    var daily = {};
+    for (var ci in dm) {
+      var day = dm[ci];
+      var v = R[r][+ci];
+      if (v != null && v !== "") {
+        var times = []; String(v).replace(/(\d{1,2}:\d{2})/g, function(_,t){times.push(t);});
+        daily[day] = {status: String(v).split("\n")[0].trim(), times:times};
+      }
+    }
+    var nr = function(idx){var x=parseFloat(R[r][idx]);return isNaN(x)?0:x;};
+    emps[name] = {name:name, group:String(R[r][1]||""), dept:String(R[r][2]||""), days:nr(6), mins:nr(8), late:nr(9), lateMins:nr(10), early:nr(14), missIn:nr(16), missOut:nr(17), absent:nr(18), daily:daily};
+  }
+  return {emps:emps, year:year, month:month};
+}
+
+function parseClock(buf) {
+  var wb = XLSX.read(buf, {type:"array"});
+  var R = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, defval:""});
+  var dm = {};
+  for (var c=6; c<(R[2]||[]).length; c++) {
+    var d = String(R[2][c]||"").trim();
+    if (/^\d+$/.test(d)) dm[c] = +d;
+  }
+  var clkObj = {};
+  for (var r=3; r<R.length; r++) {
+    var name = String(R[r][0]||"").trim(); if (!name) continue;
+    var daily = {};
+    for (var ci in dm) {
+      var day = dm[ci];
+      var v = R[r][+ci];
+      if (v != null && v !== "") {
+        var ent = [];
+        var parts = String(v).split("\n");
+        for (var pi=0; pi<parts.length; pi++) {
+          var tm = parts[pi].match(/(\d{1,2}:\d{2})/);
+          if (tm) ent.push(tm[1]);
+        }
+        if (ent.length) daily[day] = ent;
+      }
+    }
+    clkObj[name] = daily;
+  }
+  return clkObj;
+}
+
+// ═══════ Step1 → Step2 ═══════
+function goStep2() {
+  try {
+    dd = parseSummary(new Uint8Array(files[1].arrayBuffer ? [] : []));
+    // 使用FileReader
+    var reader1 = new FileReader();
+    reader1.onload = function(e1) {
+      dd = parseSummary(new Uint8Array(e1.target.result));
+      var reader2 = new FileReader();
+      reader2.onload = function(e2) {
+        clk = parseClock(new Uint8Array(e2.target.result));
+        daysInMonth = new Date(dd.year, dd.month, 0).getDate();
+
+        // 初始化录入表
+        if (sumData.length === 0) { for (var i=0; i<5; i++) addSumRow(); }
+
+        // 初始化代码映射（默认10个代码位）
+        if (codeMap.length === 0) {
+          var defaultCodes = ["A","B","C","D","E","H","J","K","Q","U"];
+          for (var ci=0; ci<defaultCodes.length; ci++) {
+            codeMap.push({code: defaultCodes[ci], name:""});
+          }
+        }
+        renderCodeMap();
+
+        // 初始化岗位排班
+        initPostSchTable();
+
+        setStep(2);
+      };
+      reader2.readAsArrayBuffer(files[2]);
+    };
+    reader1.readAsArrayBuffer(files[1]);
+  } catch(e) {
+    alert("文件解析出错：" + e.message);
+  }
+}
+
+// ═══════ 部门录入 ═══════
+function switchDept(t) {
+  document.getElementById("dtab1").className = "dept-tab" + (t==="sum"?" on":"");
+  document.getElementById("dtab2").className = "dept-tab" + (t==="sch"?" on":"");
+  document.getElementById("paneSum").className = t==="sum"?"":"hidden";
+  document.getElementById("paneSch").className = t==="sch"?"":"hidden";
+}
+
+// ═══════ 汇总表 ═══════
+function addSumRow() {
+  sumData.push({name:"", dept:"", expected:0, actual:0, notes:""});
+  renderSumTable();
+}
+function renderSumTable() {
+  document.getElementById("sumBody").innerHTML = sumData.map(function(d, i) {
+    return '<tr>'
+      + '<td><input class="cell-inp" value="'+esc(d.name)+'" onchange="sumData['+i+'].name=this.value" placeholder="姓名"/></td>'
+      + '<td><input class="cell-inp" value="'+esc(d.dept)+'" onchange="sumData['+i+'].dept=this.value" placeholder="部门" style="width:80px"/></td>'
+      + '<td><input class="cell-inp cell-inp-num" type="number" value="'+(d.expected||"")+'" onchange="sumData['+i+'].expected=+this.value"/></td>'
+      + '<td><input class="cell-inp cell-inp-num" type="number" value="'+(d.actual||"")+'" onchange="sumData['+i+'].actual=+this.value"/></td>'
+      + '<td><input class="cell-inp" value="'+esc(d.notes)+'" onchange="sumData['+i+'].notes=this.value" placeholder="选填"/></td>'
+      + '<td><button class="btn-sm" onclick="sumData.splice('+i+',1);renderSumTable()">删</button></td>'
+      + '</tr>';
+  }).join("");
+}
+
+// ═══════ 人员代码映射 ═══════
+function renderCodeMap() {
+  var html = "";
+  for (var i=0; i<codeMap.length; i++) {
+    html += '<div class="code-map-item">'
+      + '<span class="code-badge">'+esc(codeMap[i].code)+'</span>'
+      + '<span style="color:#9ca3af;font-size:11px">=</span>'
+      + '<input class="code-map-inp" value="'+esc(codeMap[i].name)+'" placeholder="姓名" '
+      + 'onchange="codeMap['+i+'].name=this.value" />'
+      + '</div>';
+  }
+  document.getElementById("codeMapArea").innerHTML = html;
+}
+
+function addCodeSlot() {
+  var usedCodes = {};
+  for (var i=0; i<codeMap.length; i++) usedCodes[codeMap[i].code] = true;
+  var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  var next = "?";
+  for (var li=0; li<letters.length; li++) {
+    if (!usedCodes[letters[li]]) { next = letters[li]; break; }
+  }
+  codeMap.push({code: next, name:""});
+  renderCodeMap();
+}
+
+// ═══════ 岗位排班表 ═══════
+function initPostSchTable() {
+  // 表头：日期列
+  var h = '<tr><th style="min-width:100px">岗位</th>';
+  for (var d=1; d<=daysInMonth; d++) {
+    h += '<th style="text-align:center;min-width:36px;font-size:10px">'+d+'</th>';
+  }
+  h += '</tr>';
+  document.getElementById("schHead").innerHTML = h;
+
+  // 初始化岗位数据
+  if (postSchData.length === 0) {
+    for (var pi=0; pi<defaultPosts.length; pi++) {
+      var row = {};
+      for (var d2=1; d2<=daysInMonth; d2++) row[d2] = "";
+      postSchData.push(row);
+    }
+  }
+  renderPostSchTable();
+}
+
+function renderPostSchTable() {
+  var html = "";
+  for (var pi=0; pi<defaultPosts.length; pi++) {
+    html += '<tr><td style="font-size:12px;font-weight:500;white-space:nowrap;color:#374151">'+esc(defaultPosts[pi].label)+'</td>';
+    for (var d=1; d<=daysInMonth; d++) {
+      var val = postSchData[pi] ? (postSchData[pi][d]||"") : "";
+      html += '<td><input class="cell-inp cell-inp-sm" value="'+esc(val)+'" '
+        + 'onchange="postSchData['+pi+']['+d+']=this.value.toUpperCase()" '
+        + 'maxlength="2" '
+        + 'style="width:32px;font-size:11px;padding:3px 1px" /></td>';
+    }
+    html += '</tr>';
+  }
+  // 休假行（可添加多人）
+  html += '<tr style="border-top:2px solid #e5e7eb"><td style="font-size:12px;font-weight:500;color:#6b7280" colspan="'+(daysInMonth+1)+'">'
+    + '休假人员在下方不用填，系统会自动把没排到岗位的人标记为休息'
+    + '</td></tr>';
+  document.getElementById("schBody").innerHTML = html;
+}
+
+// ═══════ 岗位→人员 转换 ═══════
+function convertPostToPerson() {
+  // 建立代码→姓名的映射
+  var codeToName = {};
+  for (var ci=0; ci<codeMap.length; ci++) {
+    if (codeMap[ci].code && codeMap[ci].name && codeMap[ci].name.trim()) {
+      codeToName[codeMap[ci].code.toUpperCase()] = codeMap[ci].name.trim();
+    }
+  }
+
+  // 遍历每个岗位每一天，构建 person[name][day] = [岗位列表]
+  var personDays = {};
+  for (var pi=0; pi<defaultPosts.length; pi++) {
+    var post = defaultPosts[pi];
+    for (var d=1; d<=daysInMonth; d++) {
+      var code = (postSchData[pi] && postSchData[pi][d]) ? postSchData[pi][d].toUpperCase().trim() : "";
+      if (!code) continue;
+      // 支持多人：有些格子可能填 "A\B" 或 "A/B" 表示两个人
+      var codes = code.split(/[\\\/,]/);
+      for (var k=0; k<codes.length; k++) {
+        var c = codes[k].trim();
+        if (!c) continue;
+        var pname = codeToName[c];
+        if (!pname) {
+          // 代码未映射，跳过但记录
+          continue;
+        }
+        if (!personDays[pname]) personDays[pname] = {};
+        if (!personDays[pname][d]) personDays[pname][d] = [];
+        personDays[pname][d].push(post.label);
+      }
+    }
+  }
+
+  // 汇总每个人的出勤天数
+  var result = [];
+  for (var name in personDays) {
+    var days = personDays[name];
+    var workDays = Object.keys(days).length;
+    var detail = [];
+    for (var dd2=1; dd2<=daysInMonth; dd2++) {
+      if (days[dd2]) {
+        detail.push(dd2+"日:"+days[dd2].join("+"));
+      }
+    }
+    result.push({name:name, workDays:workDays, detail:detail.join("  "), days:days});
+  }
+  return result;
+}
+
+function previewConvert() {
+  var result = convertPostToPerson();
+  if (result.length === 0) {
+    alert("请先填好代码映射和岗位排班数据");
+    return;
+  }
+  var html = "";
+  for (var i=0; i<result.length; i++) {
+    html += '<tr>'
+      + '<td style="font-weight:500">'+esc(result[i].name)+'</td>'
+      + '<td style="text-align:center;font-weight:600">'+result[i].workDays+'天</td>'
+      + '<td style="font-size:11px;color:#6b7280;max-width:400px;word-break:break-all">'+esc(result[i].detail)+'</td>'
+      + '</tr>';
+  }
+  document.getElementById("previewBody").innerHTML = html;
+  document.getElementById("previewCard").classList.remove("hidden");
+}
+
+// ═══════ 比对 ═══════
+function goStep3() {
+  // 收集部门数据
+  var dept = [];
+
+  // 汇总表数据
+  for (var si=0; si<sumData.length; si++) {
+    var sd = sumData[si];
+    if (!sd.name || !sd.name.trim()) continue;
+    dept.push({name:sd.name.trim(), dept:sd.dept||"", actual:sd.actual||0, expected:sd.expected||0, sch:null, personDays:null});
+  }
+
+  // 排班表数据（岗位→人员转换）
+  var converted = convertPostToPerson();
+  for (var ci2=0; ci2<converted.length; ci2++) {
+    var p = converted[ci2];
+    dept.push({name:p.name, dept:"保安部", actual:p.workDays, expected:p.workDays, sch:null, personDays:p.days});
+  }
+
+  // 比对
+  anomalies = [];
+
+  for (var di=0; di<dept.length; di++) {
+    var e = dept[di];
+    var ddEmp = dd.emps[e.name];
+    if (!ddEmp) {
+      anomalies.push({name:e.name, dep:e.dept, detail:"部门有此人，但钉钉中没有找到", dv:e.actual+"天", tv:"无记录"});
+      continue;
+    }
+    // 出勤天数对比
+    var deptDays = parseFloat(e.actual)||0;
+    var ddDays = ddEmp.days;
+    if (deptDays > 0 && ddDays > 0 && deptDays !== ddDays) {
+      var diff = Math.abs(ddDays - deptDays);
+      anomalies.push({name:e.name, dep:e.dept, detail:"出勤天数不一致：部门"+deptDays+"天，钉钉"+ddDays+"天，差"+diff+"天", dv:deptDays+"天", tv:ddDays+"天"});
+    }
+    // 排班逐日检查
+    if (e.personDays) {
+      for (var day=1; day<=daysInMonth; day++) {
+        if (!e.personDays[day]) continue; // 这天没排班
+        // 有排班但钉钉无打卡
+        if (!ddEmp.daily[day] && !(clk[e.name]||{})[day]) {
+          anomalies.push({name:e.name, dep:e.dept, detail:day+"日排班【"+e.personDays[day].join("+")+"】但钉钉无打卡记录", dv:e.personDays[day].join("+"), tv:"无打卡"});
+        }
+      }
+    }
+  }
+
+  // 钉钉自身异常
+  var deptNames = {};
+  for (var di2=0; di2<dept.length; di2++) deptNames[dept[di2].name] = true;
+
+  var ddNames = Object.keys(dd.emps);
+  for (var ni=0; ni<ddNames.length; ni++) {
+    var name = ddNames[ni];
+    var d = dd.emps[name];
+    if (d.missIn > 0 || d.missOut > 0) {
+      anomalies.push({name:name, dep:d.dept, detail:"钉钉缺卡"+(d.missIn>0?"上班"+d.missIn+"次":"")+(d.missOut>0?" 下班"+d.missOut+"次":""), dv:"", tv:(d.missIn+d.missOut)+"次"});
+    }
+    if (d.absent > 0) anomalies.push({name:name, dep:d.dept, detail:"钉钉记录旷工"+d.absent+"天", dv:"", tv:d.absent+"天"});
+    if (d.late > 0) anomalies.push({name:name, dep:d.dept, detail:"钉钉记录迟到"+d.late+"次，共"+d.lateMins+"分钟", dv:"", tv:d.late+"次"});
+    if (d.early > 0) anomalies.push({name:name, dep:d.dept, detail:"钉钉记录早退"+d.early+"次", dv:"", tv:d.early+"次"});
+    if (dept.length > 0 && !deptNames[name] && d.days > 0) {
+      anomalies.push({name:name, dep:d.dept, detail:"钉钉有出勤"+d.days+"天，但部门考勤表中没有报此人", dv:"无", tv:d.days+"天"});
+    }
+  }
+
+  setStep(3);
+  renderResult();
+  renderOv();
+}
+
+// ═══════ 结果渲染 ═══════
+function renderResult() {
+  var total = anomalies.length;
+  var sumCount = 0;
+  for (var i=0;i<sumData.length;i++) { if (sumData[i].name && sumData[i].name.trim()) sumCount++; }
+  var schCount = convertPostToPerson().length;
+
+  document.getElementById("resultCards").innerHTML =
+    '<div class="result-box"><div class="result-num" style="color:'+(total>0?"#dc2626":"#059669")+'">'+total+'</div><div class="result-lbl">异常项</div></div>'
+    + '<div class="result-box"><div class="result-num" style="color:#111">'+Object.keys(dd.emps).length+'</div><div class="result-lbl">钉钉总人数</div></div>'
+    + '<div class="result-box"><div class="result-num" style="color:#111">'+(sumCount+schCount)+'</div><div class="result-lbl">部门报送人数</div></div>';
+
+  var body = document.getElementById("resultBody");
+  var noR = document.getElementById("noResult");
+  if (total === 0) {
+    body.innerHTML = "";
+    noR.classList.remove("hidden");
+    noR.textContent = "🎉 没有发现任何异常，所有数据一致！";
+    return;
+  }
+  noR.classList.add("hidden");
+  body.innerHTML = anomalies.map(function(a, i) {
+    return '<tr class="anom-row">'
+      + '<td style="color:#9ca3af;font-size:12px">'+(i+1)+'</td>'
+      + '<td style="font-weight:600;white-space:nowrap">'+esc(a.name)+'</td>'
+      + '<td style="color:#6b7280">'+esc(a.dep)+'</td>'
+      + '<td>'+esc(a.detail)+'</td>'
+      + '<td style="color:#6b7280;white-space:nowrap">'+esc(a.dv)+'</td>'
+      + '<td style="color:#6b7280;white-space:nowrap">'+esc(a.tv)+'</td>'
+      + '</tr>';
+  }).join("");
+}
+
+// ═══════ 钉钉总览 ═══════
+function renderOv() {
+  var emps = dd.emps;
+  document.getElementById("ovTitle").textContent = "钉钉出勤总览（" + Object.keys(emps).length + "人）";
+  var aSet = {};
+  for (var ai=0; ai<anomalies.length; ai++) aSet[anomalies[ai].name] = true;
+  var cv = function(v, c) { return '<td style="text-align:center;color:'+(v?c:"#d1d5db")+'">'+(v||"-")+'</td>'; };
+  document.getElementById("ovBody").innerHTML = Object.keys(emps).sort().map(function(name) {
+    var d = emps[name];
+    return '<tr>'
+      + '<td style="font-weight:500">'+esc(name)+'</td>'
+      + '<td style="color:#9ca3af;font-size:12px">'+esc(d.group)+'</td>'
+      + '<td style="text-align:center">'+d.days+'</td>'
+      + '<td style="text-align:center">'+(d.mins?(d.mins/60).toFixed(1):0)+'</td>'
+      + cv(d.late,"#d97706") + cv(d.early,"#d97706")
+      + cv(d.missIn+d.missOut,"#d97706") + cv(d.absent,"#dc2626")
+      + '<td style="text-align:center">'+(aSet[name]?'<span style="color:#dc2626">⚠ 异常</span>':'<span style="color:#059669">✓</span>')+'</td>'
+      + '</tr>';
+  }).join("");
+}
+
+function toggleOv() {
+  var w = document.getElementById("ovWrap"), a = document.getElementById("ovArr");
+  if (w.classList.contains("hidden")) {w.classList.remove("hidden"); a.textContent="收起 ▲";}
+  else {w.classList.add("hidden"); a.textContent="展开 ▼";}
+}
+
+// ═══════ 导出 ═══════
+function exportXls() {
+  var rows = [["序号","姓名","部门","异常说明","部门数据","钉钉数据"]];
+  for (var i=0; i<anomalies.length; i++) {
+    var a = anomalies[i];
+    rows.push([i+1,a.name,a.dep,a.detail,a.dv,a.tv]);
+  }
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  ws["!cols"] = [{wch:5},{wch:10},{wch:10},{wch:45},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws, "异常列表");
+  XLSX.writeFile(wb, "考勤核对_"+dd.year+"年"+dd.month+"月.xlsx");
+}
+
+// ═══════ 导航 ═══════
+function setStep(n) {
+  var pages = ["page1","page2","page3"];
+  for (var i=0; i<pages.length; i++) {
+    document.getElementById(pages[i]).className = (i+1===n) ? "" : "hidden";
+  }
+  for (var j=1; j<=3; j++) {
+    var el = document.getElementById("s"+j);
+    el.className = "step-item" + (j<n?" done":"") + (j===n?" active":"");
+  }
+}
+function goBack1() { setStep(1); }
+function resetAll() { setStep(1); anomalies=[]; curFilter="all"; }
+
+// ═══════ 工具 ═══════
+function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+</script>
+</body>
+</html>
