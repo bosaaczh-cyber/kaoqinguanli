@@ -19,19 +19,36 @@ body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background
 .step-item.active .step-num{background:#4f46e5;color:#fff}
 .step-item.done .step-num{background:#059669;color:#fff}
 .card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:20px;margin-bottom:14px}
-.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-.upload-box{border:2px dashed #d1d5db;border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .15s;background:#fafafa}
-.upload-box:hover{border-color:#6366f1;background:#f5f3ff}
-.upload-box.done{border-color:#10b981;background:#f0fdf4;border-style:solid}
-.upload-box .icon{font-size:32px;margin-bottom:8px}
-.upload-box .label{font-size:14px;font-weight:600;color:#374151}
-.upload-box.done .label{color:#059669}
-.upload-box .sub{font-size:12px;color:#9ca3af;margin-top:4px}
-.btn{padding:10px 28px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
-.btn-main{background:#4f46e5;color:#fff}.btn-main:hover{background:#4338ca}
-.btn-main:disabled{background:#d1d5db;color:#9ca3af;cursor:not-allowed}
-.btn-ghost{background:#fff;border:1px solid #d1d5db;color:#374151}.btn-ghost:hover{border-color:#4f46e5;color:#4f46e5}
-.btn-sm{padding:5px 12px;font-size:12px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;cursor:pointer}.btn-sm:hover{border-color:#d1d5db;color:#374151}
+
+/* ══ Step1 多文件上传 ══ */
+.upload-zone{border:2px dashed #d1d5db;border-radius:10px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .15s;background:#fafafa;margin-bottom:12px}
+.upload-zone:hover,.upload-zone.dragover{border-color:#6366f1;background:#f5f3ff}
+.upload-zone .icon{font-size:40px;margin-bottom:8px}
+.upload-zone .label{font-size:15px;font-weight:600;color:#374151}
+.upload-zone .sub{font-size:12px;color:#9ca3af;margin-top:4px}
+.file-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.file-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;transition:all .15s}
+.file-item:hover{border-color:#d1d5db}
+.file-item .fi-icon{font-size:22px;flex-shrink:0}
+.file-item .fi-info{flex:1;min-width:0}
+.file-item .fi-name{font-size:13px;font-weight:500;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-item .fi-size{font-size:11px;color:#9ca3af;margin-top:2px}
+.file-item .fi-del{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1px solid #e5e7eb;background:#fff;color:#9ca3af;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.file-item .fi-del:hover{color:#dc2626;border-color:#fca5a5;background:#fef2f2}
+.type-badge{flex-shrink:0;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;cursor:pointer;user-select:none;transition:all .12s}
+.type-badge.summary{background:#ede9fe;color:#4f46e5}
+.type-badge.clock{background:#fef3c7;color:#b45309}
+.type-badge.unknown{background:#fee2e2;color:#dc2626}
+.file-item.detected{border-color:#bbf7d0;background:#f0fdf4}
+
+/* ══ Step2 导入 ══ */
+.import-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px}
+.import-bar .im-icon{font-size:20px}
+.import-bar .im-text{font-size:13px;color:#92400e;flex:1}
+.import-summary{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#065f46;display:none}
+.import-summary.show{display:block}
+
+/* ══ 原有表格等样式 ══ */
 .dept-tabs{display:flex;border-bottom:2px solid #f3f4f6;margin-bottom:16px}
 .dept-tab{padding:8px 20px;font-size:13px;font-weight:500;color:#9ca3af;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
 .dept-tab.on{color:#4f46e5;border-color:#4f46e5;font-weight:600}
@@ -42,6 +59,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background
 .tbl tr:hover td{background:#fafafa}
 .cell-inp{border:1px solid #e5e7eb;border-radius:5px;padding:4px 6px;font-size:12px;outline:none;background:#fff;width:100%;transition:border .15s}
 .cell-inp:focus{border-color:#6366f1;box-shadow:0 0 0 2px rgba(99,102,241,.1)}
+.cell-inp.auto-filled{background:#fefce8;border-color:#fde68a}
 .cell-num{width:44px;text-align:center}.cell-name{width:64px}.cell-note{width:90px}
 .code-map{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;padding:10px 14px;background:#f9fafb;border-radius:8px;border:1px solid #f3f4f6}
 .code-item{display:flex;align-items:center;gap:4px}
@@ -62,6 +80,15 @@ body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background
 .tip-box{background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:12px;line-height:1.5}
 .hidden{display:none!important}
 ::-webkit-scrollbar{height:5px;width:5px}::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+
+.btn{padding:10px 28px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-main{background:#4f46e5;color:#fff}.btn-main:hover{background:#4338ca}
+.btn-main:disabled{background:#d1d5db;color:#9ca3af;cursor:not-allowed}
+.btn-ghost{background:#fff;border:1px solid #d1d5db;color:#374151}.btn-ghost:hover{border-color:#4f46e5;color:#4f46e5}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;cursor:pointer}.btn-sm:hover{border-color:#d1d5db;color:#374151}
+.btn-warn{background:#f59e0b;color:#fff}.btn-warn:hover{background:#d97706}
+.btn-import{padding:7px 16px;font-size:12px;border-radius:6px;border:1px solid #fcd34d;background:#fffbeb;color:#92400e;cursor:pointer;font-weight:600;transition:all .12s}
+.btn-import:hover{background:#fef3c7;border-color:#f59e0b}
 </style>
 </head>
 <body>
@@ -83,19 +110,28 @@ body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background
     <div class="step-item" id="s3"><span class="step-num">3</span>查看比对结果</div>
   </div>
 
-  <!-- Step 1 -->
+  <!-- ═══════════════ Step 1：多文件上传 ═══════════════ -->
   <div id="page1">
     <div class="card">
-      <div style="font-size:15px;font-weight:700;margin-bottom:14px">上传钉钉导出的考勤文件</div>
-      <div class="upload-grid">
-        <div class="upload-box" id="box1" onclick="pick(1)"><div class="icon">📊</div><div class="label">月度汇总</div><div class="sub">点击选择 .xlsx 文件</div></div>
-        <div class="upload-box" id="box2" onclick="pick(2)"><div class="icon">⏰</div><div class="label">打卡时间表</div><div class="sub">点击选择 .xlsx 文件</div></div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px">上传钉钉导出的考勤文件</div>
+      <div style="font-size:12px;color:#9ca3af;margin-bottom:14px">支持一次选择多个文件（.xlsx / .xls / .csv），系统会自动识别文件类型</div>
+
+      <!-- 上传区域 -->
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="icon">📎</div>
+        <div class="label">点击或拖拽上传钉钉考勤文件</div>
+        <div class="sub">支持 .xlsx / .xls / .csv，可一次选择多个文件</div>
       </div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple style="display:none" onchange="onFilesSelected(this)">
+
+      <!-- 已上传文件列表 -->
+      <div class="file-list" id="fileList"></div>
+
       <button class="btn btn-main" id="nextBtn1" disabled onclick="goStep2()">下一步 →</button>
     </div>
   </div>
 
-  <!-- Step 2 -->
+  <!-- ═══════════════ Step 2：录入部门数据 ═══════════════ -->
   <div id="page2" class="hidden">
     <div class="card">
       <div style="font-size:15px;font-weight:700;margin-bottom:10px">录入各部门考勤数据</div>
@@ -103,6 +139,15 @@ body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background
         <b>汇总表</b>（物业/食堂/办公室）：按纸质表填写 &nbsp;|&nbsp;
         <b>排班表</b>（保安）：按岗位填人名代码
       </div>
+
+      <!-- 导入Excel功能区 -->
+      <div class="import-bar">
+        <span class="im-icon">📥</span>
+        <span class="im-text">有电子表？导入Excel/CSV自动填充。PDF请先转换为Excel（推荐 <a href="https://www.ilovepdf.com/zh-cn/pdf_to_excel" target="_blank" style="color:#b45309">ilovepdf</a> 或 <a href="https://smallpdf.com/cn/pdf-to-excel" target="_blank" style="color:#b45309">SmallPDF</a> 免费转）</span>
+        <button class="btn-import" onclick="document.getElementById('deptExcelInput').click()">📥 导入Excel/CSV</button>
+        <input type="file" id="deptExcelInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="importDeptExcel(this)">
+      </div>
+      <div class="import-summary" id="importSummary"></div>
 
       <div class="dept-tabs">
         <div class="dept-tab on" id="dtab1" onclick="switchDept('sum')">汇总表（物业/食堂/办公室）</div>
@@ -152,6 +197,14 @@ body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background
         <button class="btn btn-ghost" onclick="previewConvert()" style="margin-top:10px;font-size:12px">🔄 预览转换结果</button>
       </div>
 
+      <!-- 也支持导入保安排班Excel -->
+      <div class="import-bar" style="margin-top:16px">
+        <span class="im-icon">📥</span>
+        <span class="im-text">保安排班也有电子表？导入排班Excel自动填代码</span>
+        <button class="btn-import" onclick="document.getElementById('schExcelInput').click()">📥 导入排班表</button>
+        <input type="file" id="schExcelInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="importSchExcel(this)">
+      </div>
+
       <div style="margin-top:18px;display:flex;gap:10px">
         <button class="btn btn-main" onclick="goStep3()">开始比对 →</button>
         <button class="btn btn-ghost" onclick="goBack1()">← 返回上一步</button>
@@ -159,7 +212,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background
     </div>
   </div>
 
-  <!-- Step 3 -->
+  <!-- ═══════════════ Step 3：比对结果 ═══════════════ -->
   <div id="page3" class="hidden">
     <div class="result-summary" id="resultCards"></div>
     <div class="card" style="padding:16px 20px">
@@ -183,7 +236,8 @@ body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background
 
 <script>
 // ══ 全局状态 ══
-var files={1:null,2:null}, dd=null, clk=null, anomalies=[], daysInMonth=31;
+var uploadedFiles = [];   // [{file, type:'summary'|'clock'|'unknown', name, size}]
+var dd=null, clk=null, anomalies=[], daysInMonth=31;
 
 // 三个部门的数据数组
 var deptData = {wy:[], st:[], bg:[]};
@@ -203,7 +257,7 @@ var defaultPosts=[
 ];
 var postSchData=[];
 
-// ══ localStorage 存取全部数据（姓名 + 数值） ══
+// ══ localStorage 存取 ══
 function saveAllData(){
   try{
     var obj={};
@@ -240,7 +294,6 @@ function loadAllData(){
     var sch=localStorage.getItem("kaoqin_sch_v1");
     if(sch) postSchData=JSON.parse(sch);
   }catch(e){}
-  // fallback: 尝试旧版（仅姓名）存档
   for(var k2 in DEPT_DEFAULTS){
     if(deptData[k2].length===0){
       try{
@@ -254,14 +307,12 @@ function loadAllData(){
         }
       }catch(e2){}
     }
-    // 仍然为空则用默认数量填充
     if(deptData[k2].length===0){
       for(var j=0;j<DEPT_DEFAULTS[k2];j++) deptData[k2].push(emptyRow());
     }
   }
 }
 
-// 同时存保安代码到localStorage
 function saveCodeMap(){
   try{localStorage.setItem("kaoqin_codes_v3",JSON.stringify(codeMap));}catch(e){}
 }
@@ -275,18 +326,234 @@ function loadCodeMap(){
   }
 }
 
-// ══ 上传 ══
-function pick(i){
-  var inp=document.createElement("input");inp.type="file";inp.accept=".xlsx,.xls";
-  inp.onchange=function(e){
-    if(!e.target.files[0])return;
-    files[i]=e.target.files[0];
-    var box=document.getElementById("box"+i);
-    box.classList.add("done");
-    box.querySelector(".label").textContent=files[i].name;
-    box.querySelector(".sub").textContent=(files[i].size/1024).toFixed(0)+" KB";
-    document.getElementById("nextBtn1").disabled=!(files[1]&&files[2]);
-  };inp.click();
+// ═══════════════════════════ Step1：多文件上传 ═══════════════════════════
+
+// 拖拽支持
+var uz = document.getElementById("uploadZone");
+uz.addEventListener("dragover",function(e){e.preventDefault();uz.classList.add("dragover");});
+uz.addEventListener("dragleave",function(e){e.preventDefault();uz.classList.remove("dragover");});
+uz.addEventListener("drop",function(e){
+  e.preventDefault();uz.classList.remove("dragover");
+  if(e.dataTransfer.files.length){handleNewFiles(e.dataTransfer.files);}
+});
+
+function onFilesSelected(input){
+  if(input.files.length){handleNewFiles(input.files);}
+  input.value="";
+}
+
+function handleNewFiles(fileList){
+  for(var i=0;i<fileList.length;i++){
+    var f=fileList[i];
+    if(!/\.(xlsx?|csv)$/i.test(f.name)) continue;
+    // 避免重复
+    if(uploadedFiles.some(function(u){return u.name===f.name&&u.size===f.size;})) continue;
+    uploadedFiles.push({file:f, type:"unknown", name:f.name, size:f.size, _detecting:true});
+  }
+  renderFileList();
+  autoDetectFiles();
+}
+
+function renderFileList(){
+  var html="";
+  for(var i=0;i<uploadedFiles.length;i++){
+    var uf=uploadedFiles[i];
+    var detecting=uf._detecting;
+    var typeLabel={"summary":"📊 月度汇总","clock":"⏰ 打卡时间表","unknown":(detecting?"🔄 识别中…":"❓ 未识别")}[uf.type];
+    var typeCls=uf.type+(detecting?" detecting":"");
+    var itemCls=(detecting||uf.type!=="unknown")?" detected":"";
+    html+='<div class="file-item'+itemCls+'">'
+      +'<span class="fi-icon">📄</span>'
+      +'<div class="fi-info"><div class="fi-name">'+esc(uf.name)+'</div><div class="fi-size">'+(uf.size/1024).toFixed(0)+' KB</div></div>'
+      +'<span class="type-badge '+typeCls+'" onclick="cycleType('+i+')" title="点击切换文件类型">'+typeLabel+'</span>'
+      +'<button class="fi-del" onclick="removeFile('+i+')" title="移除">✕</button>'
+      +'</div>';
+  }
+  document.getElementById("fileList").innerHTML=html;
+  updateNextBtn1();
+}
+
+function cycleType(idx){
+  var types=["unknown","summary","clock"];
+  var cur=types.indexOf(uploadedFiles[idx].type);
+  uploadedFiles[idx].type=types[(cur+1)%3];
+  renderFileList();
+}
+
+function removeFile(idx){
+  uploadedFiles.splice(idx,1);
+  renderFileList();
+}
+
+function updateNextBtn1(){
+  var hasSummary=uploadedFiles.some(function(u){return u.type==="summary";});
+  var hasClock=uploadedFiles.some(function(u){return u.type==="clock";});
+  document.getElementById("nextBtn1").disabled=!(hasSummary&&hasClock);
+}
+
+// ══ 自动检测文件类型（文件名优先 → 内容特征 → 智能兜底）══
+function autoDetectFiles(){
+  var unknownFiles=uploadedFiles.filter(function(u){return u.type==="unknown";});
+  if(!unknownFiles.length){applyMutualExclusion();return;}
+
+  var pending=unknownFiles.length;
+  unknownFiles.forEach(function(uf){
+    uf._detecting=true; renderFileList();
+    var reader=new FileReader();
+    reader.onload=function(e){
+      uf._detecting=false;
+      try{
+        var buf=new Uint8Array(e.target.result);
+        var wb=XLSX.read(buf,{type:"array"});
+        // 遍历所有sheet找数据最多的那个
+        var bestR=null, bestLen=0;
+        for(var si=0;si<wb.SheetNames.length;si++){
+          var R=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[si]],{header:1,defval:""});
+          if(R.length>bestLen){bestLen=R.length;bestR=R;}
+        }
+        if(bestR&&bestR.length>=3){
+          uf.type=detectFileType(bestR,uf.name);
+        }
+      }catch(ex){}
+      pending--;
+      checkDone();
+    };
+    reader.onerror=function(){
+      uf._detecting=false; pending--;
+      checkDone();
+    };
+    reader.readAsArrayBuffer(uf.file);
+  });
+
+  function checkDone(){
+    if(pending<=0){
+      applyMutualExclusion();
+      renderFileList();
+    }
+  }
+}
+
+// 检测单个文件类型：文件名 → 关键词 → 时间/状态计数 → 默认
+function detectFileType(R,fileName){
+  var fn=fileName.toLowerCase();
+
+  // ── 第0步：文件名是最可靠的信号 ──
+  // 钉钉导出的文件名通常包含明确标识
+  if(/汇总|月度|summary|考勤表|出勤表|员工考勤/.test(fn)) return "summary";
+  if(/打卡|clock|时间表|原始|签到/.test(fn)) return "clock";
+
+  // ── 第1步：扫描所有行，统计特征 ──
+  var timeHits=0;    // HH:MM格式的时间
+  var statusHits=0;  // 考勤状态词
+  var dateTitle=0;   // 日期标题 2026-06
+  var sumKW=0;       // 汇总关键词
+  var clkKW=0;       // 打卡关键词
+  var maxDays=0;     // 最多日编号数
+  var totalRows=Math.min(R.length,200);
+
+  for(var r=0;r<totalRows;r++){
+    var row=R[r]||[];
+    var dayCnt=0;
+    for(var c=0;c<row.length;c++){
+      var v=String(row[c]||"").trim();
+      if(!v) continue;
+
+      // 日编号：1-31的纯数字（或"1日"格式）
+      var d=parseInt(v);
+      if(d>=1&&d<=31&&v.length<=3) dayCnt++;
+
+      // 时间戳 HH:MM
+      if(/\d{1,2}:\d{2}/.test(v)) timeHits++;
+
+      // 考勤状态词（包含匹配）
+      if(/正常|旷工|迟到|早退|缺卡|外勤|出差|请假|调休|休息|年假|事假|病假|婚假|产假|丧假|补签|加班/.test(v)) statusHits++;
+
+      // 日期标题
+      if(/\d{4}[-\/年.]\d{1,2}/.test(v)) dateTitle++;
+
+      // 汇总关键词
+      if(/月度汇总|考勤汇总|出勤汇总|汇总表|员工汇总|考勤表/.test(v)) sumKW++;
+
+      // 打卡关键词
+      if(/打卡时间|原始记录|打卡明细|考勤时间|原始打卡|打卡记录/.test(v)) clkKW++;
+    }
+    if(dayCnt>maxDays) maxDays=dayCnt;
+  }
+
+  // ── 第2步：强关键词直接判定 ──
+  if(sumKW>0) return "summary";
+  if(clkKW>0) return "clock";
+  if(dateTitle>0 && clkKW===0) return "summary";
+
+  // ── 第3步：日编号检查（两个文件都有，是必要条件不是区分条件）──
+  if(maxDays<3) return "unknown";
+
+  // ── 第4步：时间戳 vs 状态词 ──
+  // 打卡表有大量时间（每行每天可能有多条打卡记录）
+  // 汇总表有考勤状态（正常/旷工/迟到等）
+  if(timeHits>50) return "clock";
+  if(statusHits>30) return "summary";
+  if(timeHits>0 && statusHits===0) return "clock";
+  if(statusHits>0 && timeHits===0) return "summary";
+  if(timeHits>statusHits*2) return "clock";
+  if(statusHits>timeHits*2) return "summary";
+
+  // ── 第5步：还没分出来就按列数猜 ──
+  // 打卡表通常列更多（每天可能多列）
+  var avgCols=0;
+  for(var r2=0;r2<Math.min(R.length,20);r2++){avgCols+=(R[r2]||[]).length;}
+  avgCols=avgCols/Math.min(R.length,20);
+  // 如果平均列数>20，更可能是打卡时间表（每天多列）
+  // 注意：这个判断不可靠，但比无要好
+
+  return "unknown"; // 实在分不出来，留给互斥推断处理
+}
+
+// 互斥推断 + 兜底策略
+function applyMutualExclusion(){
+  var unknown=uploadedFiles.filter(function(u){return u.type==="unknown";});
+  if(unknown.length===0) return;
+
+  var detected=uploadedFiles.filter(function(u){return u.type!=="unknown"&&u.type!=="unknown";});
+
+  // 情况1：一个已识别，一个未识别 → 取反
+  if(detected.length===1&&unknown.length===1){
+    unknown[0]._detecting=false;
+    unknown[0].type=detected[0].type==="summary"?"clock":"summary";
+    return;
+  }
+
+  // 情况2：两个都未识别 → 用文件名分
+  if(uploadedFiles.length===2&&unknown.length===2){
+    for(var i=0;i<2;i++){
+      var uf=uploadedFiles[i];
+      uf._detecting=false;
+      var fn=uf.name.toLowerCase();
+      if(/汇总|月度|summary|考勤|出勤/.test(fn)) uf.type="summary";
+      else if(/打卡|clock|时间|原始|签到/.test(fn)) uf.type="clock";
+    }
+    // 如果文件名也没分出来，按上传顺序：第一个=汇总，第二个=打卡
+    var still=uploadedFiles.filter(function(u){return u.type==="unknown";});
+    if(still.length===2){
+      uploadedFiles[0].type="summary";
+      uploadedFiles[1].type="clock";
+    }else if(still.length===1){
+      // 一个分出来了，另一个取反
+      var known=uploadedFiles.filter(function(u){return u.type!=="unknown";})[0];
+      still[0].type=known.type==="summary"?"clock":"summary";
+    }
+    return;
+  }
+
+  // 情况3：已有汇总/打卡各一，多余的取反
+  var hasSum=uploadedFiles.some(function(u){return u.type==="summary";});
+  var hasClk=uploadedFiles.some(function(u){return u.type==="clock";});
+  if(hasSum&&!hasClk&&unknown.length===1){
+    unknown[0]._detecting=false; unknown[0].type="clock";
+  }
+  if(hasClk&&!hasSum&&unknown.length===1){
+    unknown[0]._detecting=false; unknown[0].type="summary";
+  }
 }
 
 // ══ 解析钉钉 ══
@@ -320,6 +587,10 @@ function parseClock(buf){
 
 // ══ Step1→Step2 ══
 function goStep2(){
+  var summaryFile=uploadedFiles.find(function(u){return u.type==="summary";});
+  var clockFile=uploadedFiles.find(function(u){return u.type==="clock";});
+  if(!summaryFile||!clockFile){alert("请先上传月度汇总和打卡时间表两个文件");return;}
+
   var r1=new FileReader();
   r1.onload=function(e1){
     dd=parseSummary(new Uint8Array(e1.target.result));
@@ -332,9 +603,10 @@ function goStep2(){
       for(var k in DEPT_DEFAULTS){renderDeptTable(k);}
       renderCodeMap();
       initPostSchTable();
+      document.getElementById("importSummary").classList.remove("show");
       setStep(2);
-    };r2.readAsArrayBuffer(files[2]);
-  };r1.readAsArrayBuffer(files[1]);
+    };r2.readAsArrayBuffer(clockFile.file);
+  };r1.readAsArrayBuffer(summaryFile.file);
 }
 
 function emptyRow(){return{name:"",expected:"",actual:"",shijia:"",nianjia:"",sangjia:"",jbpt:"",jbzm:"",jbfd:"",kuanggong:"",cdzt:"",notes:""};}
@@ -347,7 +619,7 @@ function switchDept(t){
   document.getElementById("paneSch").className=t==="sch"?"":"hidden";
 }
 
-// ══ 部门表格渲染（通用） ══
+// ══ 部门表格渲染 ══
 function addRow(dept){deptData[dept].push(emptyRow());renderDeptTable(dept);saveAllData();}
 
 function delRow(dept,idx){deptData[dept].splice(idx,1);renderDeptTable(dept);saveAllData();}
@@ -376,9 +648,262 @@ function onCellChange(el){
   var field=el.getAttribute("data-field");
   if(row>=0&&row<deptData[dept].length){
     deptData[dept][row][field]=el.value;
-    saveAllData();  // 任何字段修改都立即保存
+    saveAllData();
     document.getElementById(dept+"Count").textContent=deptData[dept].filter(function(r){return r.name&&r.name.trim();}).length;
   }
+}
+
+// ═══════════════════════════ 导入部门Excel ═══════════════════════════
+
+// 列名匹配表：Excel中的列名关键词 → 我们的字段名
+var COLUMN_KEYWORDS = {
+  "name":     ["姓名","名字","员工","人员","名称"],
+  "expected": ["应出勤","应出","应到","应上班","规定出勤"],
+  "actual":   ["实出勤","实际出勤","实出","出勤天数","出勤","实到","实上班"],
+  "shijia":   ["事假","事假天数"],
+  "nianjia":  ["年假","年假天数","年休"],
+  "sangjia":  ["丧假","丧假天数"],
+  "jbpt":     ["加班平时","平时加班","平常加班","加班·平时","加班_平时"],
+  "jbzm":     ["加班周末","周末加班","双休加班","加班·周末","加班_周末"],
+  "jbfd":     ["加班法定","法定加班","节日加班","加班·法定","加班_法定"],
+  "kuanggong":["旷工","旷工天数"],
+  "cdzt":     ["迟到早退","迟到","早退","迟到/早退"],
+  "notes":    ["备注","说明","其他"]
+};
+
+// 部门名关键词→部门key
+var DEPT_KEYWORDS = {
+  "wy": ["物业","物管","wy","wuye","物业管理"],
+  "st": ["食堂","餐厅","饭堂","st","shitang","canting"],
+  "bg": ["办公室","行政","办公","bg","bangong","xingzheng"]
+};
+
+// 导入汇总表Excel
+function importDeptExcel(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var buf=new Uint8Array(e.target.result);
+      var wb=XLSX.read(buf,{type:"array"});
+      var importLog=[]; // [{dept, sheetName, count, names}]
+
+      // 遍历每个sheet
+      for(var si=0;si<wb.SheetNames.length;si++){
+        var sname=wb.SheetNames[si];
+        var R=XLSX.utils.sheet_to_json(wb.Sheets[sname],{header:1,defval:""});
+        if(R.length<2) continue;
+
+        // 找表头行（包含姓名的那行）
+        var headerRow=-1;
+        for(var r=0;r<Math.min(R.length,10);r++){
+          for(var c=0;c<(R[r]||[]).length;c++){
+            if(/姓名|名字|员工/.test(String(R[r][c]||""))){headerRow=r;break;}
+          }
+          if(headerRow>=0) break;
+        }
+        if(headerRow<0) continue; // 没找到表头，跳过
+
+        // 映射列
+        var colMap={}; // colIndex → fieldName
+        var headers=R[headerRow];
+        for(var c=0;c<headers.length;c++){
+          var h=String(headers[c]||"").trim();
+          for(var field in COLUMN_KEYWORDS){
+            for(var ki=0;ki<COLUMN_KEYWORDS[field].length;ki++){
+              if(h.indexOf(COLUMN_KEYWORDS[field][ki])>=0 || h===COLUMN_KEYWORDS[field][ki]){
+                colMap[c]=field;
+                break;
+              }
+            }
+            if(colMap[c]) break;
+          }
+        }
+        if(!colMapHas(colMap,"name")) continue; // 至少要有姓名列
+
+        // 检测部门
+        var deptKey=detectDept(sname,R);
+        if(!deptKey) deptKey="wy"; // 默认物业部
+
+        // 提取数据行
+        var newRows=[];
+        for(var r=headerRow+1;r<R.length;r++){
+          var row=R[r];
+          if(!row||!row.length) continue;
+          var nameVal=String(row[colMapFind(colMap,"name")]||"").trim();
+          if(!nameVal||nameVal==="合计"||nameVal==="小计") continue;
+
+          var entry=emptyRow();
+          entry.name=nameVal;
+          for(var c2 in colMap){
+            var field=colMap[c2];
+            if(field==="name") continue;
+            var val=String(row[+c2]||"").trim();
+            if(val&&NUM_FIELDS[field]){val=val.replace(/[^\d.]/g,"");}
+            entry[field]=val;
+          }
+          newRows.push(entry);
+        }
+
+        if(newRows.length>0){
+          // 合并到deptData（替换同名人员，追加新人员）
+          mergeIntoDept(deptKey,newRows);
+          importLog.push({dept:deptKey,sheet:sname,count:newRows.length});
+        }
+      }
+
+      // 更新UI
+      for(var dk in DEPT_DEFAULTS){renderDeptTable(dk);}
+      saveAllData();
+
+      // 显示导入摘要
+      showImportSummary(importLog);
+    }catch(ex){
+      alert("导入失败："+ex.message);
+      console.error(ex);
+    }
+    input.value="";
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function colMapHas(cm, field){
+  for(var c in cm){if(cm[c]===field) return true;}
+  return false;
+}
+function colMapFind(cm, field){
+  for(var c in cm){if(cm[c]===field) return +c;}
+  return 0;
+}
+
+function detectDept(sname, R){
+  // 先看sheet名
+  var sn=sname.toLowerCase();
+  for(var key in DEPT_KEYWORDS){
+    for(var ki=0;ki<DEPT_KEYWORDS[key].length;ki++){
+      if(sn.indexOf(DEPT_KEYWORDS[key][ki])>=0) return key;
+    }
+  }
+  // 再看内容
+  for(var r=0;r<Math.min(R.length,20);r++){
+    var rowStr=R[r].join(" ").toLowerCase();
+    for(var key2 in DEPT_KEYWORDS){
+      for(var ki2=0;ki2<DEPT_KEYWORDS[key2].length;ki2++){
+        if(rowStr.indexOf(DEPT_KEYWORDS[key2][ki2])>=0) return key2;
+      }
+    }
+  }
+  return null;
+}
+
+function mergeIntoDept(deptKey, newRows){
+  // 建立现有人员名→index的映射
+  var existMap={};
+  for(var i=0;i<deptData[deptKey].length;i++){
+    var n=deptData[deptKey][i].name.trim();
+    if(n) existMap[n]=i;
+  }
+
+  for(var j=0;j<newRows.length;j++){
+    var nr=newRows[j];
+    if(existMap[nr.name]!==undefined){
+      // 已有此人 → 合并数据（不覆盖用户已填的，只填空的）
+      var oldRow=deptData[deptKey][existMap[nr.name]];
+      for(var fi=0;fi<FIELDS.length;fi++){
+        var f=FIELDS[fi];
+        if((!oldRow[f]||oldRow[f]==="")&&nr[f]&&nr[f]!==""){
+          oldRow[f]=nr[f];
+        }
+      }
+    }else{
+      // 新人员 → 追加
+      deptData[deptKey].push(nr);
+    }
+  }
+}
+
+function showImportSummary(log){
+  if(!log.length){alert("未识别到任何数据，请检查Excel格式");return;}
+  var deptLabel={wy:"物业部",st:"食堂",bg:"办公室"};
+  var lines=[];
+  for(var i=0;i<log.length;i++){
+    lines.push("✅ "+deptLabel[log[i].dept]+"（"+log[i].sheet+"）：导入 "+log[i].count+" 人");
+  }
+  var el=document.getElementById("importSummary");
+  el.innerHTML="📋 <b>导入结果：</b>"+lines.join(" &nbsp;|&nbsp; ")+"<br><span style='color:#9ca3af;font-size:11px'>数据已自动填入下方表格，请核对并补填识别不了的字段</span>";
+  el.classList.add("show");
+}
+
+// ═══════════════════════════ 导入保安排班Excel ═══════════════════════════
+
+function importSchExcel(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var buf=new Uint8Array(e.target.result);
+      var wb=XLSX.read(buf,{type:"array"});
+      var R=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:""});
+      if(R.length<2){alert("未识别到数据");input.value="";return;}
+
+      // 找表头行（含"岗位"或第1天日期的行）
+      var headerRow=-1;
+      for(var r=0;r<Math.min(R.length,10);r++){
+        for(var c=0;c<(R[r]||[]).length;c++){
+          var v=String(R[r][c]||"").trim();
+          if(v==="岗位"||v==="职位"||v==="1"){headerRow=r;break;}
+        }
+        if(headerRow>=0) break;
+      }
+      if(headerRow<0){alert("未找到表头行");input.value="";return;}
+
+      // 映射日列：col → day
+      var dayMap={}; // col → day
+      var headers=R[headerRow];
+      for(var c=0;c<headers.length;c++){
+        var d=parseInt(headers[c]);
+        if(d>=1&&d<=31) dayMap[c]=d;
+      }
+      if(Object.keys(dayMap).length<5){alert("未找到足够的日列（至少5天）");input.value="";return;}
+
+      // 找岗位列
+      var postCol=-1;
+      for(var c2=0;c2<headers.length;c2++){
+        if(/岗位|职位|post/i.test(String(headers[c2]||""))){postCol=c2;break;}
+      }
+
+      // 读取数据
+      var filled=0;
+      for(var r=headerRow+1;r<R.length;r++){
+        var postName=postCol>=0?String(R[r][postCol]||"").trim():"";
+        // 匹配岗位
+        var postIdx=-1;
+        for(var pi=0;pi<defaultPosts.length;pi++){
+          if(postName&&defaultPosts[pi].label.indexOf(postName)>=0){postIdx=pi;break;}
+        }
+        // 如果没匹配到，尝试按行号
+        if(postIdx<0) postIdx=r-headerRow-1;
+        if(postIdx<0||postIdx>=defaultPosts.length) continue;
+
+        for(var dc in dayMap){
+          var cellVal=String(R[r][+dc]||"").trim().toUpperCase();
+          if(cellVal){
+            postSchData[postIdx][dayMap[dc]]=cellVal;
+            filled++;
+          }
+        }
+      }
+
+      renderPostSchTable();
+      saveAllData();
+      alert("✅ 排班表导入完成！\n填充了 "+filled+" 个排班单元格\n请核对并手动调整识别不了的位置");
+    }catch(ex){
+      alert("导入排班表失败："+ex.message);
+      console.error(ex);
+    }
+    input.value="";
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 // ══ 代码映射 ══
@@ -447,7 +972,6 @@ function previewConvert(){
 // ══ 比对 ══
 function goStep3(){
   var dept=[];
-  // 三个部门
   for(var k in DEPT_NAMES){
     deptData[k].forEach(function(r){
       if(!r.name||!r.name.trim())return;
@@ -455,7 +979,6 @@ function goStep3(){
         kuanggong:parseFloat(r.kuanggong)||0,cdzt:parseFloat(r.cdzt)||0,personDays:null,src:"sum"});
     });
   }
-  // 保安
   convertPostToPerson().forEach(function(p){
     dept.push({name:p.name,dept:"保安部",actual:p.workDays,expected:p.workDays,kuanggong:0,cdzt:0,personDays:p.days,src:"sch"});
   });
@@ -555,7 +1078,6 @@ function importConfig(input){
       if(cfg.names){for(var k in cfg.names){if(cfg.names[k]&&cfg.names[k].length){
         deptData[k]=[];cfg.names[k].forEach(function(n){var r=emptyRow();r.name=n;deptData[k].push(r);});
       }}}
-      // 兼容旧版配置
       if(cfg.wyNames){deptData.wy=[];cfg.wyNames.forEach(function(n){var r=emptyRow();r.name=n;deptData.wy.push(r);});}
       if(cfg.stNames){deptData.st=[];cfg.stNames.forEach(function(n){var r=emptyRow();r.name=n;deptData.st.push(r);});}
       saveAllData();saveCodeMap();
